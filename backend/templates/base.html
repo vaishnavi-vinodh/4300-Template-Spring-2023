@@ -14,7 +14,7 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input Your Ingredients" id="filter-text-val" onkeyup="filterText()">
+                <input placeholder="Input Your Ingredients" id="filter-text-val">
             </div>
         </div>
         <div id="answer-box">
@@ -24,26 +24,34 @@
 
     <script>
 
-        function answerBoxTemplate(title, titleDesc) {
+        function answerBoxTemplate(row) {
             return `<div class=''>
-                <h3 class='episode-title'>${title}</h3>
-                <p class='episode-desc'>${titleDesc}</p>
+                <h3 class='episode-title'>${row.image_url}</h3>
+                <img src=${row.description} width=400 height=300>
             </div>`
         }
+
+        const input = document.getElementById("filter-text-val")
 
         function sendFocus() {
             document.getElementById('filter-text-val').focus()
         }
 
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                filterText();
+            }
+        });
+
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             console.log(document.getElementById("filter-text-val").value)
-            fetch("/recipes?" + new URLSearchParams({ name: document.getElementById("filter-text-val").value }).toString())
+            fetch("/episodes?" + new URLSearchParams({ name: document.getElementById("filter-text-val").value }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
 
                     let tempDiv = document.createElement("div")
-                    tempDiv.innerHTML = answerBoxTemplate(row.title, row.descr)
+                    tempDiv.innerHTML = answerBoxTemplate(row)
                     document.getElementById("answer-box").appendChild(tempDiv)
                 }));
 

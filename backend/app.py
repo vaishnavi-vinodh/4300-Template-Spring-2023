@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+import pandas as pd
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -30,21 +31,39 @@ CORS(app)
 # there's a much better and cleaner way to do this
 
 
+def jaccard(query, results):
+    ranks = []
+    query = set(query.lower().split(' '))
+    for res in results:
+        name = set(res['image_url'].lower().split(' '))
+        print(name)
+        print(query)
+        intersection = len((query).intersection(name))
+        print(intersection)
+        union = (len(query) + len(name)) - intersection
+        ranks.append((float(intersection) / union, res))
+    print(ranks)
+    final = sorted(ranks, key=lambda x: x[0])[-3:][::-1]
+    return [res for _, res in final]
+
+
 def sql_search(episode):
-    query_sql = f"""SELECT * FROM recipes limit 10"""
-    keys = ["name"]
+    query_sql = f"""SELECT image_url, description, cuisine FROM recipes"""
+    keys = ["image_url", "description", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
-    return json.dumps([dict(zip(keys, i)) for i in data])
+    results = [dict(zip(keys, i)) for i in data]
+    jac = jaccard(episode, results)
+    return json.dumps(jac)
 
 
-@app.route("/")
+@ app.route("/")
 def home():
     return render_template('base.html', title="sample html")
 
 
-@app.route("/episodes")
+@ app.route("/episodes")
 def episodes_search():
-    text = request.args.get("title")
+    text = request.args.get("name")
     return sql_search(text)
 
 # app.run(debug=True)
