@@ -36,13 +36,9 @@ def jaccard(query, results):
     query = set(query.lower().split(' '))
     for res in results:
         name = set(res['image_url'].lower().split(' '))
-        print(name)
-        print(query)
         intersection = len((query).intersection(name))
-        print(intersection)
         union = (len(query) + len(name)) - intersection
         ranks.append((float(intersection) / union, res))
-    print(ranks)
     final = sorted(ranks, key=lambda x: x[0])[-3:][::-1]
     return [res for _, res in final]
 

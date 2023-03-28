@@ -21,13 +21,12 @@
 
         </div>
     </div>
-
     <script>
 
         function answerBoxTemplate(row) {
-            return `<div class=''>
+            return `<div class='item'>
                 <h3 class='episode-title'>${row.image_url}</h3>
-                <img src=${row.description} width=400 height=300>
+                <picture><img src=${row.description} width=300 height=250></picture>
             </div>`
         }
 
@@ -51,6 +50,7 @@
                 .then((data) => data.forEach(row => {
 
                     let tempDiv = document.createElement("div")
+                    tempDiv.className = "item_container";
                     tempDiv.innerHTML = answerBoxTemplate(row)
                     document.getElementById("answer-box").appendChild(tempDiv)
                 }));
