@@ -21,7 +21,6 @@
 
         </div>
     </div>
-    <p> hi</p>
 
     <script>
 
@@ -39,7 +38,7 @@
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             console.log(document.getElementById("filter-text-val").value)
-            fetch("/recipes?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+            fetch("/recipes?" + new URLSearchParams({ name: document.getElementById("filter-text-val").value }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
 
