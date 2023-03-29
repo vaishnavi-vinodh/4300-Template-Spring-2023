@@ -34,7 +34,7 @@ def jaccard(query, results):
     ranks = []
     query = set(query.lower().split(' '))
     for res in results:
-        name = set(res['image_url'].lower().split(' '))
+        name = set(res['name'].lower().split(' '))
         intersection = len((query).intersection(name))
         union = (len(query) + len(name)) - intersection
         ranks.append((float(intersection) / union, res))
@@ -43,8 +43,8 @@ def jaccard(query, results):
 
 
 def sql_search(episode):
-    query_sql = f"""SELECT image_url, description, cuisine FROM recipes"""
-    keys = ["image_url", "description", "cuisine"]
+    query_sql = f"""SELECT name, image_url, description FROM recipes"""
+    keys = ["name","image_url", "description", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
     jac = jaccard(episode, results)

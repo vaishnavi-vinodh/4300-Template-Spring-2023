@@ -10,6 +10,12 @@
     justify-content: start;
     align-items: center;
     flex-direction: column;
+    background-color: #eedeb8;
+
+}
+
+input{
+    background-color:#eedeb8;
 }
 
 #google-c {
@@ -29,7 +35,8 @@
 }
 
 #google-0-1 {
-    color: #0F9D58;
+    color: #596247
+    ;
 }
 
 #google-0-2 {
