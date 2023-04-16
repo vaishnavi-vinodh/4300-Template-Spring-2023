@@ -51,17 +51,9 @@ def rank(query, results):
         ingredients = set(ing)
         intersection = len((query).intersection(ingredients))
         union = (len(query) + len(ingredients)) - intersection
-        len_res = len(res['ingredients'].lower().split(' '))
         ranks.append((float(intersection) / (union*len(ing)*len(q)), res))
     final = sorted(ranks, key=lambda x: x[0])
     return [res for _, res in final][::-1]
-
-
-def norm(dict):
-    norm = 0
-    for v in dict.values():
-        norm += v*v
-    return math.sqrt(norm)
 
 
 def filter_time(results, time):
