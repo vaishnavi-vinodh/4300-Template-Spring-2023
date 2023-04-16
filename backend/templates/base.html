@@ -5,7 +5,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
     rel="stylesheet">
-<link href='https://fonts.googleapis.com/css?family=Aclonica' rel='stylesheet'>
 
 <body>
     <div class="full-body-container">
@@ -13,28 +12,58 @@
             <div class="google-colors">
                 <h1 id="google-0-1">Flavors of India</h1>
             </div>
-            <div class="input-box" onclick="sendFocus()"><img
-                    src="{{ url_for('static', filename='images/mag.png') }}" /><input placeholder="Input Your Keywords"
-                    id="filter-text-val"></div>
-            <div class="input-box" onclick="sendFocus()"><img
-                    src="{{ url_for('static', filename='images/mag.png') }}" /><input
-                    placeholder="Input Your Ingredients" id="filter-text-val"></div><br>
-            <div onclick="sendFocus()"><label for="time">How much time do you have? </label><input type="range" min="10"
-                    max="95" value="50" step="5" class="slider" onchange="updateTimeInput(this.value);"><output
-                    id="time-output">50</output></div><br>
-            <div class="diet-container"><label for="diet-label">Dietary Restrictions? </label><select name="diet">
+            <div class="input-box" onclick="sendFocus()">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Input Your Keywords" id="filter-text-val">
+            </div>
+            <div class="input-box" onclick="sendFocus()">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Input Your Ingredients" id="filter-text-val">
+            </div>
+            <br>
+            <div onclick="sendFocus()">
+                <label for="time"> How much time do you have? </label>
+                <input type="range" min="10" max="95" value="50" step="5" class="slider"
+                    onchange="updateTimeInput(this.value);">
+                <output id="time-output">50</output>
+            </div>
+            <ul class="range-labels">
+                <li class="active selected"> 10m </li>
+                <li> 15m </li>
+                <li> 25 m </li>
+                <li> 30m </li>
+                <li> 35m </li>
+                <li> 40m </li>
+                <li> 45m </li>
+            </ul>
+
+
+            <div>
+                <label for="diet-label"> Any Dietary Restrictions? </label>
+                <select name="diet">
                     <option value="Vegetarian">Vegetarian</option>
                     <option value="Non-Vegetarian">Non-Vegetarian</option>
                     <option value="Gluten Free">Gluten Free</option>
-                </select></div>
+                </select>
+            </div>
         </div>
-        <div id="answer-box"></div>
+        <div id="answer-box">
+
+        </div>
     </div>
-    <script>function answerBoxTemplate(row) {
-            return `<div class='item'><h3 class='episode-title'>${row.name}</h3><picture><img src=${row.image_url} width=300 height=250></picture><p>${row.description}</p></div>`
+    <script>
+
+        function answerBoxTemplate(row) {
+            return `<div class='item'>
+                <h3 class='episode-title'>${row.name}</h3>
+                <picture><img src=${row.image_url} width=300 height=250></picture>
+                <p>${row.description}</p>
+            </div>`
         }
 
-        const input = document.getElementById("filter-text-val") function sendFocus() {
+        const input = document.getElementById("filter-text-val")
+
+        function sendFocus() {
             document.getElementById('filter-text-val').focus()
         }
 
@@ -46,15 +75,16 @@
 
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
+            console.log(document.getElementById("filter-text-val").value)
+            fetch("/episodes?" + new URLSearchParams({ name: document.getElementById("filter-text-val").value }).toString())
+                .then((response) => response.json())
+                .then((data) => data.forEach(row => {
 
-            console.log(document.getElementById("filter-text-val").value) fetch("/episodes?" + new URLSearchParams({
-                name: document.getElementById("filter-text-val").value
-
-            }).toString()).then((response) => response.json()).then((data) => data.forEach(row => {
-
-                let tempDiv = document.createElement("div") tempDiv.className = "item_container";
-                tempDiv.innerHTML = answerBoxTemplate(row) document.getElementById("answer-box").appendChild(tempDiv)
-            }));
+                    let tempDiv = document.createElement("div")
+                    tempDiv.className = "item_container";
+                    tempDiv.innerHTML = answerBoxTemplate(row)
+                    document.getElementById("answer-box").appendChild(tempDiv)
+                }));
 
         }
 
