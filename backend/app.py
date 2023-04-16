@@ -29,35 +29,57 @@ CORS(app)
 # but if you decide to use SQLAlchemy ORM framework,
 # there's a much better and cleaner way to do this
 
+TIME_START_INDEX = 9
+TIME_END_INDEX = -2
 
-def jaccard(query, results):
+
+def process_input(query, results, time, diet):
+    ranked = rank(query, results)
+    filtered_time = filter_time(ranked, time)
+    return filter_diet(filtered_time, diet)
+
+
+def rank(query, results):
     ranks = []
     query = set(query.lower().split(' '))
     for res in results:
-        name = set(res['name'].lower().split(' '))
+        name = set(res['ingredients'].lower().split(' '))
         intersection = len((query).intersection(name))
         union = (len(query) + len(name)) - intersection
         ranks.append((float(intersection) / union, res))
-    final = sorted(ranks, key=lambda x: x[0])[-3:][::-1]
-    return [res for _, res in final]
+    final = sorted(ranks, key=lambda x: x[0])
+    return [res for _, res in final][::-1]
 
 
-def filter_time(time):
+def filter_time(results, time):
+    filtered = []
+    for res in results:
+        if res['prep_time']:
+            res_time = res['prep_time'][TIME_START_INDEX:TIME_END_INDEX]
+            if int(res_time) <= int(time):
+                filtered.append(res)
+    return filtered
 
-    return 0
 
-
-def filter_diet(diet):
-    return 0
+def filter_diet(results, diet):
+    filtered = []
+    for res in results:
+        res_diet = res['diet']
+        if res_diet == diet or res_diet == 'Non-Vegetarian':
+            filtered.append(res)
+        if len(filtered) == 3:
+            break
+    return filtered
 
 
 def sql_search(text, time, diet):
-    query_sql = f"""SELECT name, image_url, description FROM recipes"""
-    keys = ["name", "image_url", "description", "cuisine"]
+    query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, cuisine FROM recipes"""
+    keys = ["name", "image_url", "description",
+            "diet", "prep_time", "ingredients", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
-    results = [dict(zip(keys, i)) for i in data]
-    jac = jaccard(text, results)
-    return json.dumps(jac)
+    data_dict = [dict(zip(keys, i)) for i in data]
+    results = process_input(text, data_dict, time, diet)
+    return json.dumps(results)
 
 
 @ app.route("/")
@@ -68,7 +90,7 @@ def home():
 @ app.route("/episodes")
 def episodes_search():
     text = request.args.get("name")
-    time = request.args.get("text")
+    time = request.args.get("time")
     diet = request.args.get("diet")
     return sql_search(text, time, diet)
 
