@@ -15,8 +15,9 @@
 }
 
 body {
-    font-family: 'Aclonica';
+    font-family: 'Open Sans', sans-serif;
     background-color: #eedeb8;
+    color: #32362b;
 }
 
 input {
@@ -33,13 +34,6 @@ option {
 
 .diet-container {
     display: flex;
-}
-
-output,
-label,
-input {
-    font-family: 'Open Sans', sans-serif;
-    color: #32362b;
 }
 
 #google-c {
@@ -114,15 +108,6 @@ input {
     flex-direction: row;
     margin-left: 5%;
     margin-right: 5%;
-}
-
-.episode-title {
-    font-family: 'Kanit', sans-serif;
-    /* text-align: center; */
-}
-
-.episode-desc {
-    font-family: 'Montserrat', sans-serif;
 }
 
 .item {
