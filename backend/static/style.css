@@ -37,7 +37,7 @@ option {
 }
 
 #google-0-1 {
-    color: #596247;
+    color: #bc5108;
 }
 
 .google-colors {
@@ -101,6 +101,7 @@ option {
 
 .item p {
     text-align: center;
+    color: #eedeb8;
 }
 
 .item_container {
@@ -110,9 +111,9 @@ option {
     border: solid;
     padding: 1% 2%;
     margin: 1%;
-    border-color: #596247;
+    border-color: #788461;
     border-width: 2px;
-    background-color: rgb(128, 138, 107);
+    background-color: #788461;
 }
 
 picture {
