@@ -14,8 +14,16 @@
 
 }
 
-input{
-    background-color:#eedeb8;
+input {
+    background-color: #eedeb8;
+
+}
+
+output,
+label,
+input {
+    font-family: 'Open Sans', sans-serif;
+    color: #32362b;
 }
 
 #google-c {
@@ -35,8 +43,7 @@ input{
 }
 
 #google-0-1 {
-    color: #596247
-    ;
+    color: #596247;
 }
 
 #google-0-2 {
