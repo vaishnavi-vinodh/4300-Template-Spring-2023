@@ -36,28 +36,8 @@ option {
     display: flex;
 }
 
-#google-c {
-    color: #4285F4;
-}
-
-#google-s {
-    color: #DB4437;
-}
-
-#google-4 {
-    color: #F4B400;
-}
-
-#google-3 {
-    color: #4285F4;
-}
-
 #google-0-1 {
     color: #596247;
-}
-
-#google-0-2 {
-    color: #DB4437;
 }
 
 .google-colors {
@@ -114,8 +94,23 @@ option {
     align-items: center;
 }
 
+.item h3 {
+    text-align: center;
+    color: #eedeb8;
+}
+
+.item p {
+    text-align: center;
+}
+
 .item_container {
     width: 33%;
     align-items: center;
     justify-content: center;
+    border: solid;
+    padding: 1% 2%;
+    margin: 1%;
+    border-color: #596247;
+    border-width: 2px;
+    background-color: rgb(128, 138, 107);
 }
