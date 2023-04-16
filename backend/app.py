@@ -12,7 +12,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = ""
+MYSQL_USER_PASSWORD = "flavors"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "kardashiandb"
 
@@ -44,7 +44,7 @@ def jaccard(query, results):
 
 def sql_search(episode):
     query_sql = f"""SELECT name, image_url, description FROM recipes"""
-    keys = ["name","image_url", "description", "cuisine"]
+    keys = ["name", "image_url", "description", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
     jac = jaccard(episode, results)
