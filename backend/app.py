@@ -42,12 +42,21 @@ def jaccard(query, results):
     return [res for _, res in final]
 
 
-def sql_search(episode):
+def filter_time(time):
+
+    return 0
+
+
+def filter_diet(diet):
+    return 0
+
+
+def sql_search(text, time, diet):
     query_sql = f"""SELECT name, image_url, description FROM recipes"""
-    keys = ["name","image_url", "description", "cuisine"]
+    keys = ["name", "image_url", "description", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
-    jac = jaccard(episode, results)
+    jac = jaccard(text, results)
     return json.dumps(jac)
 
 
@@ -59,6 +68,8 @@ def home():
 @ app.route("/episodes")
 def episodes_search():
     text = request.args.get("name")
-    return sql_search(text)
+    time = request.args.get("text")
+    diet = request.args.get("diet")
+    return sql_search(text, time, diet)
 
 # app.run(debug=True)
