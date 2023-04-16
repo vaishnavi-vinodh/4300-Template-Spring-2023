@@ -14,7 +14,16 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Input Your Keywords" id="filter-text-val">
+            </div>
+            <div class="input-box" onclick="sendFocus()">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
                 <input placeholder="Input Your Ingredients" id="filter-text-val">
+            </div>
+            <div onclick="sendFocus()">
+                <input type="range" min="10" max="95" value="50" step = "5" class="slider" onchange="updateTimeInput(this.value);">
+                <output id="time-output">50</output>
+                <label for="time"> How much time do you have? </label>
             </div>
         </div>
         <div id="answer-box">
@@ -27,6 +36,7 @@
             return `<div class='item'>
                 <h3 class='episode-title'>${row.name}</h3>
                 <picture><img src=${row.image_url} width=300 height=250></picture>
+                <p>${row.description}</p>
             </div>`
         }
 
@@ -55,6 +65,11 @@
                     document.getElementById("answer-box").appendChild(tempDiv)
                 }));
 
+        }
+
+        function updateTimeInput(val) {
+            document.getElementById('time-output').value = val;
+            time_slider_val = val;
         }
 
     </script>
