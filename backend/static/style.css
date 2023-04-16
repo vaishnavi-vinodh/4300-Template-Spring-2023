@@ -14,9 +14,24 @@
 
 }
 
+body {
+    font-family: 'Aclonica';
+}
+
 input {
     background-color: #eedeb8;
 
+}
+
+select,
+option {
+    font-family: 'Open Sans', sans-serif;
+    padding: 2%;
+    width: 50%;
+}
+
+.diet-container {
+    display: flex;
 }
 
 output,
