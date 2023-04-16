@@ -65,7 +65,7 @@ def filter_diet(results, diet):
     filtered = []
     for res in results:
         res_diet = res['diet']
-        if res_diet == diet or res_diet == 'Non-Vegetarian':
+        if res_diet == diet or diet == 'Non-Vegetarian':
             filtered.append(res)
         if len(filtered) == 3:
             break

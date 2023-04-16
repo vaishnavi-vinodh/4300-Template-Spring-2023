@@ -42,11 +42,25 @@
     <script>
 
         function answerBoxTemplate(row) {
-            return `<div class='item'>
+            const name = row.name.toLowerCase();
+            new_name = "";
+            for (i = 0; i < name.length; i++) {
+                if (name[i].match(/^[a-z]+$/) !== null) {
+                    new_name += name[i];
+                }
+                else {
+                    if (i > 0 && new_name[new_name.length - 1] != '-') {
+                        new_name += "-";
+                    }
+                }
+            }
+            console.log(new_name);
+            const link = 'https://www.archanaskitchen.com/' + new_name;
+            return `<a href=${link} style='text-decoration:none; color:black;'> <div class='item'>
                 <h3 class='episode-title'>${row.name}</h3>
                 <picture><img src=${row.image_url} width=300 height=250></picture>
                 <p>${row.description}</p>
-            </div>`
+            </div> </a>`
         }
 
         const button = document.getElementById("search");
