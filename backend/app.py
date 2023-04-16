@@ -64,19 +64,6 @@ def norm(dict):
     return math.sqrt(norm)
 
 
-# def compute_idf(q, N, results):
-#     # TODO: clean ingredients list to just be words
-#     idf_dict = defaultdict(float)
-#     for word in q:
-#         docs_with_word = 0
-#         for res in results:
-#             doc = set(res['ingredients'].lower().split(' '))
-#             if word in doc:
-#                 docs_with_word += 1
-#         idf_dict[word] = N / docs_with_word
-#     return idf_dict
-
-
 def filter_time(results, time):
     filtered = []
     for res in results:
