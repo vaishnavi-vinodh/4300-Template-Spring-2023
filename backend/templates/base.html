@@ -12,13 +12,13 @@
             <div class="google-colors">
                 <h1 id="google-0-1">Flavors of India</h1>
             </div>
-            <div class="input-box" onclick="sendFocus()">
+            <div class="input-box" onclick="sendFocus('filter-text-val-1')">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input Your Keywords" id="filter-text-val">
+                <input placeholder="Input Your Keywords" id="filter-text-val-1">
             </div>
-            <div class="input-box" onclick="sendFocus()">
+            <div class="input-box" onclick="sendFocus('filter-text-val-2')">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input Your Ingredients" id="filter-text-val">
+                <input placeholder="Input Your Ingredients" id="filter-text-val-2">
             </div>
             <br>
             <div onclick="sendFocus()">
@@ -50,22 +50,29 @@
             </div>`
         }
 
-        const input = document.getElementById("filter-text-val")
+        const input1 = document.getElementById("filter-text-val-1")
+        const input2 = document.getElementById("filter-text-val-2")
 
-        function sendFocus() {
-            document.getElementById('filter-text-val').focus()
+        function sendFocus(id) {
+            document.getElementById(id).focus()
         }
 
-        input.addEventListener('keydown', (event) => {
+        input1.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                filterText();
+                filterText('filter-text-val-1');
             }
         });
 
-        function filterText() {
+        input2.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                filterText('filter-text-val-2');
+            }
+        });
+
+        function filterText(id) {
             document.getElementById("answer-box").innerHTML = ""
-            console.log(document.getElementById("filter-text-val").value)
-            fetch("/episodes?" + new URLSearchParams({ name: document.getElementById("filter-text-val").value }).toString())
+            console.log(document.getElementById(id).value)
+            fetch("/episodes?" + new URLSearchParams({ name: document.getElementById(id).value }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
 
