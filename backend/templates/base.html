@@ -12,13 +12,13 @@
             <div class="google-colors">
                 <h1 id="google-0-1">Flavors of India</h1>
             </div>
-            <div class="input-box" onclick="sendFocus('keywords')">
+            <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input Your Keywords" id="keywords">
+                <input placeholder="Input Your Keywords" id="filter-text-val">
             </div>
-            <div class="input-box" onclick="sendFocus('ingredients')">
+            <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input Your Ingredients" id="ingredients">
+                <input placeholder="Input Your Ingredients" id="filter-text-val">
             </div>
             <br>
             <div onclick="sendFocus()">
@@ -27,17 +27,6 @@
                     onchange="updateTimeInput(this.value);">
                 <output id="time-output">50</output>
             </div>
-            <ul class="range-labels">
-                <li class="active selected"> 10m </li>
-                <li> 15m </li>
-                <li> 25 m </li>
-                <li> 30m </li>
-                <li> 35m </li>
-                <li> 40m </li>
-                <li> 45m </li>
-            </ul>
-
-
             <div class="diet-container">
                 <label for="diet-label"> Any Dietary Restrictions? </label>
                 <select name="diet">
@@ -63,8 +52,8 @@
 
         const input = document.getElementById("filter-text-val")
 
-        function sendFocus(id) {
-            document.getElementById(id).focus()
+        function sendFocus() {
+            document.getElementById('filter-text-val').focus()
         }
 
         input.addEventListener('keydown', (event) => {
