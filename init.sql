@@ -1219,7 +1219,44 @@ UPDATE recipes SET diet = 'Vegetarian' WHERE diet = 'Eggetarian';
 UPDATE recipes SET diet = 'Vegetarian' WHERE diet = 'No Onion No Garlic (Sattvic)';
 UPDATE recipes SET diet = 'Vegetarian' WHERE diet = 'High Protein Vegetarian';
 UPDATE recipes SET diet = 'Non-Vegetarian' WHERE diet = 'High Protein Non Vegetarian';
+UPDATE recipes SET diet = 'Non-Vegetarian' WHERE diet = 'High Protein Non Vegetarian';
+UPDATE recipes SET ingredients = replace(ingredients, '-', '');
+UPDATE recipes SET ingredients = replace(ingredients, '(', '');
+UPDATE recipes SET ingredients = replace(ingredients, ')', '');
+UPDATE recipes SET ingredients = replace(ingredients, ' | ', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'teaspoon', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'tablespoon', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'cup', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'inch', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'grams ', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, ' s ', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'chopped', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'cubed', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'diced', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'grated', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'boiled', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'pureed', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'finely', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'coarsely', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'roughly', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'cooking', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'optional', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'handful', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, 'minced', ' ');
+UPDATE recipes SET ingredients = replace(ingredients, '0', '');
+UPDATE recipes SET ingredients = replace(ingredients, '1', '');
+UPDATE recipes SET ingredients = replace(ingredients, '2', '');
+UPDATE recipes SET ingredients = replace(ingredients, '3', '');
+UPDATE recipes SET ingredients = replace(ingredients, '4', '');
+UPDATE recipes SET ingredients = replace(ingredients, '5', '');
+UPDATE recipes SET ingredients = replace(ingredients, '6', '');
+UPDATE recipes SET ingredients = replace(ingredients, '7', '');
+UPDATE recipes SET ingredients = replace(ingredients, '8', '');
+UPDATE recipes SET ingredients = replace(ingredients, '9', '');
+UPDATE recipes SET ingredients = replace(ingredients, '/', '');
+UPDATE recipes SET ingredients = replace(ingredients, 'to taste', '');
 
+UPDATE recipes SET ingredients = replace(ingredients, '  ', ' ');
 
 
 

@@ -3,6 +3,9 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+from collections import Counter
+from collections import defaultdict
+import math
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -41,14 +44,37 @@ def process_input(query, results, time, diet):
 
 def rank(query, results):
     ranks = []
-    query = set(query.lower().split(' '))
+    q = query.lower().split(' ')
+    query = set(q)
     for res in results:
-        name = set(res['ingredients'].lower().split(' '))
-        intersection = len((query).intersection(name))
-        union = (len(query) + len(name)) - intersection
-        ranks.append((float(intersection) / union, res))
+        ing = res['ingredients'].lower().split(' ')
+        ingredients = set(ing)
+        intersection = len((query).intersection(ingredients))
+        union = (len(query) + len(ingredients)) - intersection
+        len_res = len(res['ingredients'].lower().split(' '))
+        ranks.append((float(intersection) / (union*len(ing)*len(q)), res))
     final = sorted(ranks, key=lambda x: x[0])
     return [res for _, res in final][::-1]
+
+
+def norm(dict):
+    norm = 0
+    for v in dict.values():
+        norm += v*v
+    return math.sqrt(norm)
+
+
+# def compute_idf(q, N, results):
+#     # TODO: clean ingredients list to just be words
+#     idf_dict = defaultdict(float)
+#     for word in q:
+#         docs_with_word = 0
+#         for res in results:
+#             doc = set(res['ingredients'].lower().split(' '))
+#             if word in doc:
+#                 docs_with_word += 1
+#         idf_dict[word] = N / docs_with_word
+#     return idf_dict
 
 
 def filter_time(results, time):
