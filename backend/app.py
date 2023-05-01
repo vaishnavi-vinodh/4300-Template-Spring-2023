@@ -39,11 +39,13 @@ CORS(app)
 TIME_START_INDEX = 9
 TIME_END_INDEX = -2
 
+
 def process_input(query, results, time, diet, course, keywords, data_dict):
     ranked = rank(query, results)
     filtered_time = filter_time(ranked, time)
     filtered_diet = filter_diet(filtered_time, diet)
     return filter_course(filtered_diet, course)
+
 
 def tokenize(text):
     text = text.lower()
@@ -73,15 +75,17 @@ def filter_time(results, time):
                 filtered.append(res)
     return filtered
 
+
 def filter_course(results, course):
     filtered = []
     for res in results:
         res_course = res['course']
-        if course in res_course  or course == 'Click dropdown':
+        if course in res_course or course == 'Click dropdown':
             filtered.append(res)
         if len(filtered) == 3:
             break
     return filtered
+
 
 def filter_diet(results, diet):
     filtered = []
@@ -92,14 +96,14 @@ def filter_diet(results, diet):
     return filtered
 
 
-
 def sql_search(text, time, diet, course, keywords):
     query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, course, cuisine FROM recipes"""
     keys = ["name", "image_url", "description",
             "diet", "prep_time", "ingredients", "course", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     data_dict = [dict(zip(keys, i)) for i in data]
-    results = process_input(text, data_dict, time, diet, course, keywords, data_dict)
+    results = process_input(text, data_dict, time, diet,
+                            course, keywords, data_dict)
     return json.dumps(results)
 
 
