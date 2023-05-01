@@ -6,6 +6,9 @@ from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from collections import Counter
 from collections import defaultdict
 import math
+import re
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 # ROOT_PATH for linking with all your files.
@@ -36,20 +39,37 @@ CORS(app)
 TIME_START_INDEX = 9
 TIME_END_INDEX = -2
 
-
-def process_input(query, results, time, diet, course):
+def process_input(query, results, time, diet, course, keywords, data_dict):
+    ingr_matrix = tfidf(data_dict, "ingredients")
+    key_matrix = tfidf(data_dict, "description")
     ranked = rank(query, results)
     filtered_time = filter_time(ranked, time)
     filtered_diet = filter_diet(filtered_time, diet)
     return filter_course(filtered_diet, course)
 
+def tokenize(text):
+    text = text.lower()
+    return re.findall(r'[a-z]+', text)
+
+
+def build_vectorizer(max_features = 5000, stop_words="english", max_df=0.8, min_df=5, norm='l2'):
+    vectorizer = TfidfVectorizer(max_features=max_features, stop_words=stop_words, max_df=max_df, min_df=min_df, norm=norm)
+    return vectorizer
+
+def tfidf(recipes, field):
+    n_feats = 5000
+    tfidf_vec = build_vectorizer()
+    doc_by_vocab = np.empty([len(recipes), n_feats])
+    doc_by_vocab = tfidf_vec.fit_transform([r[field] for r in recipes]).toarray()
+    #index_to_vocab = {i:v for i, v in enumerate(tfidf_vec.get_feature_names())}
+    return doc_by_vocab
 
 def rank(query, results):
     ranks = []
-    q = query.lower().split(' ')
+    q = tokenize(query)
     query = set(q)
     for res in results:
-        ing = res['ingredients'].lower().split(' ')
+        ing = tokenize(res['ingredients'])
         ingredients = set(ing)
         intersection = len((query).intersection(ingredients))
         union = (len(query) + len(ingredients)) - intersection
@@ -87,13 +107,13 @@ def filter_diet(results, diet):
 
 
 
-def sql_search(text, time, diet, course):
+def sql_search(text, time, diet, course, keywords):
     query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, course, cuisine FROM recipes"""
     keys = ["name", "image_url", "description",
             "diet", "prep_time", "ingredients", "course", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     data_dict = [dict(zip(keys, i)) for i in data]
-    results = process_input(text, data_dict, time, diet, course)
+    results = process_input(text, data_dict, time, diet, course, keywords, data_dict)
     return json.dumps(results)
 
 
@@ -104,11 +124,12 @@ def home():
 
 @ app.route("/episodes")
 def episodes_search():
-    text = request.args.get("name")
+    text = request.args.get("ingredients")
+    keywords = request.args.get("keywords")
     time = request.args.get("time")
     diet = request.args.get("diet")
     course = request.args.get("course")
-    return sql_search(text, time, diet, course)
+    return sql_search(text, time, diet, course, keywords)
 
 
 # app.run(debug=True)

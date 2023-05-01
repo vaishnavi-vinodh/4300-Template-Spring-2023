@@ -17,6 +17,11 @@
                 <input placeholder="Input Your Ingredients" id="filter-text-val">
             </div>
             <br>
+            <div class="input-box" onclick="sendFocus('filter-text-val-1')">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Input Keywords" id="filter-text-val-1">
+            </div>
+            <br>
             <div>
                 <label for="time"> How much time do you have? </label>
                 <input type="range" min="10" max="800" value="50" step="5" class="slider"
@@ -83,6 +88,7 @@
 
         button.addEventListener('click', (event) => {
             ingredients = document.getElementById('filter-text-val').value;
+            keywords = document.getElementById('filter-text-val-1').value;
             time = document.getElementById('time-output').value;
             diet = document.getElementById('diet').value;
             course = document.getElementById('course').value;
@@ -92,10 +98,11 @@
         function filterText(ingredients, time, diet, course) {
             document.getElementById("answer-box").innerHTML = ""
             console.log(ingredients)
+            console.log(keywords)
             console.log(time)
             console.log(diet)
             console.log(course)
-            fetch("/episodes?" + new URLSearchParams({ name: ingredients, time: time, diet: diet, course: course}).toString())
+            fetch("/episodes?" + new URLSearchParams({ ingredients: ingredients, time: time, diet: diet, course: course, keywords:keywords}).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
                     let tempDiv = document.createElement("div")
