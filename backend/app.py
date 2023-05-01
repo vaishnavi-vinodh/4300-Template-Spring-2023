@@ -7,6 +7,7 @@ from collections import Counter
 from collections import defaultdict
 import math
 
+
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -36,10 +37,11 @@ TIME_START_INDEX = 9
 TIME_END_INDEX = -2
 
 
-def process_input(query, results, time, diet):
+def process_input(query, results, time, diet, course):
     ranked = rank(query, results)
     filtered_time = filter_time(ranked, time)
-    return filter_diet(filtered_time, diet)
+    filtered_diet = filter_diet(filtered_time, diet)
+    return filter_course(filtered_diet, course)
 
 
 def rank(query, results):
@@ -65,6 +67,15 @@ def filter_time(results, time):
                 filtered.append(res)
     return filtered
 
+def filter_course(results, course):
+    filtered = []
+    for res in results:
+        res_course = res['course']
+        if course in res_course  or course == 'Click dropdown':
+            filtered.append(res)
+        if len(filtered) == 3:
+            break
+    return filtered
 
 def filter_diet(results, diet):
     filtered = []
@@ -72,18 +83,17 @@ def filter_diet(results, diet):
         res_diet = res['diet']
         if res_diet == diet or diet == 'Non-Vegetarian':
             filtered.append(res)
-        if len(filtered) == 3:
-            break
     return filtered
 
 
-def sql_search(text, time, diet):
-    query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, cuisine FROM recipes"""
+
+def sql_search(text, time, diet, course):
+    query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, course, cuisine FROM recipes"""
     keys = ["name", "image_url", "description",
-            "diet", "prep_time", "ingredients", "cuisine"]
+            "diet", "prep_time", "ingredients", "course", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     data_dict = [dict(zip(keys, i)) for i in data]
-    results = process_input(text, data_dict, time, diet)
+    results = process_input(text, data_dict, time, diet, course)
     return json.dumps(results)
 
 
@@ -97,6 +107,8 @@ def episodes_search():
     text = request.args.get("name")
     time = request.args.get("time")
     diet = request.args.get("diet")
-    return sql_search(text, time, diet)
+    course = request.args.get("course")
+    return sql_search(text, time, diet, course)
+
 
 # app.run(debug=True)

@@ -19,7 +19,7 @@
             <br>
             <div>
                 <label for="time"> How much time do you have? </label>
-                <input type="range" min="10" max="95" value="50" step="5" class="slider"
+                <input type="range" min="10" max="800" value="50" step="5" class="slider"
                     onchange="updateTimeInput(this.value);">
                 <output id="time-output">50</output>
             </div>
@@ -30,6 +30,18 @@
                     <option value="Vegetarian">Vegetarian</option>
                     <option value="Non-Vegetarian">Non-Vegetarian</option>
                     <option value="Gluten Free">Gluten Free</option>
+                </select>
+            </div>
+            <br>
+            <div class="course-container">
+                <label for="course-label"> Course </label>
+                <select name="course" id="course" value="Click dropdown">
+                    <option value="">Choose Course</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Side">Side</option>
+                    <option value="Dessert">Dessert</option>
                 </select>
             </div>
             <br>
@@ -73,15 +85,17 @@
             ingredients = document.getElementById('filter-text-val').value;
             time = document.getElementById('time-output').value;
             diet = document.getElementById('diet').value;
-            filterText(ingredients, time, diet);
+            course = document.getElementById('course').value;
+            filterText(ingredients, time, diet, course);
         });
 
-        function filterText(ingredients, time, diet) {
+        function filterText(ingredients, time, diet, course) {
             document.getElementById("answer-box").innerHTML = ""
             console.log(ingredients)
             console.log(time)
             console.log(diet)
-            fetch("/episodes?" + new URLSearchParams({ name: ingredients, time: time, diet: diet }).toString())
+            console.log(course)
+            fetch("/episodes?" + new URLSearchParams({ name: ingredients, time: time, diet: diet, course: course}).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
                     let tempDiv = document.createElement("div")
