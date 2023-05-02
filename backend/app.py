@@ -52,7 +52,7 @@ def process_input(query_ingredients, query_keywords, results, time, diet, course
     index_to_ingr, index_to_key, postings_key, popularity, recipe_to_index = read_csvs()
 
     # Use rocchio
-    if len(relevant) != 0 or len(irrelevant) != 0:
+    if len(relevant) != 0 and len(irrelevant) != 0:
         query_ingredients = rocchio(query_ingredients, relevant, irrelevant,
                                     results, index_to_ingr, recipe_to_index)
 
@@ -76,18 +76,31 @@ def process_input(query_ingredients, query_keywords, results, time, diet, course
 def rank(results, keyword_cossim, ingredient_jaccard, popularity):
     scores = {}
     ingr_list = [v for _, v in ingredient_jaccard]
+    key_list = [v for _, v in keyword_cossim]
+    # print("KEYWORD LIST")
+    # print(key_list)
+    # print("INGR LIST")
+    # print(ingr_list)
     for id in range(len(results)):
-        if id in keyword_cossim and id in ingr_list:
-            scores[id] = ALPHA * ingredient_jaccard[id][0] + GAMMA * \
-                keyword_cossim[id] + \
+        if id in key_list and id in ingr_list:
+            # print("branch 1: "+str(id))
+            ingr_id = ingr_list.index(id)
+            key_id = key_list.index(id)
+            scores[id] = ALPHA * ingredient_jaccard[ingr_id][0] + GAMMA * \
+                keyword_cossim[key_id][0] + \
                 (DELTA * popularity[id])
-        elif id in keyword_cossim:
-            scores[id] = BETA * keyword_cossim[id] + \
+        elif id in key_list:
+            key_id = key_list.index(id)
+            # print("branch 2: "+str(id))
+            scores[id] = BETA * keyword_cossim[key_id][0] + \
                 (DELTA * popularity[id])
         elif id in ingr_list:
-            scores[id] = BETA * ingredient_jaccard[id][0] + \
+            ingr_id = ingr_list.index(id)
+            # print("branch 3: " +str(id))
+            scores[id] = BETA * ingredient_jaccard[ingr_id][0] + \
                 (DELTA * popularity[id])
         else:
+            # print("branch 4: "+str(id))
             scores[id] = DELTA * popularity[id]
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
@@ -176,7 +189,10 @@ def cossim(query, postings, idf, index_to_key, n_docs):
     for doc_id in numerators:
         num = numerators[doc_id]
         doc_norm = doc_norms[doc_id]
-        score = num / (doc_norm * query_norm)
+        denom = doc_norm * query_norm
+        if denom == 0:
+            denom = 1
+        score = num / denom
         results.append((score, doc_id))
     return results
 
@@ -200,13 +216,17 @@ def rocchio(query, relevant, irrelevant, results, index_to_ingr, recipe_to_index
     q0 = vectorize(tokenize(query), index_to_ingr)
     relevant = relevant.split(',')
     irrelevant = irrelevant.split(',')
-    print(relevant)
-    print(recipe_to_index[relevant[0]])
-    print(results[0]['ingredients'])
-    relevant = np.array(list(
-        map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), relevant)))
-    irrelevant = np.array(list(
-        map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), irrelevant)))
+    # print("RELEVANT")
+    # print(relevant)
+    # print("REL2")
+    # print(recipe_to_index[relevant[0]])
+    # # print(results[0]['ingredients'])
+    if relevant!=['']:
+        relevant = np.array(list(
+            map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), relevant)))
+    if irrelevant!=['']:
+        irrelevant = np.array(list(
+            map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), irrelevant)))
     n_rel = len(relevant)
     n_irr = len(irrelevant)
 
