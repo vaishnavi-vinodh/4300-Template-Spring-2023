@@ -75,19 +75,32 @@ def process_input(query_ingredients, query_keywords, results, time, diet, course
 
 def rank(results, keyword_cossim, ingredient_jaccard, popularity):
     scores = {}
+    key_list = [v for _, v in keyword_cossim]
+    print("KEY LIST")
+    print(key_list)
+    print(type(key_list[0]))
     ingr_list = [v for _, v in ingredient_jaccard]
+    print("INGR LIST")
+    print(ingr_list)
     for id in range(len(results)):
-        if id in keyword_cossim and id in ingr_list:
+        if id in key_list and id in ingr_list:
+            print("branch 1")
             scores[id] = ALPHA * ingredient_jaccard[id][0] + GAMMA * \
-                keyword_cossim[id] + \
+                keyword_cossim[id][0] + \
                 (DELTA * popularity[id])
-        elif id in keyword_cossim:
-            scores[id] = BETA * keyword_cossim[id] + \
+        elif id in key_list:
+            print("branch 2")
+            ind = key_list.index(id)
+            print(keyword_cossim[ind])
+            print(type(keyword_cossim[ind]))
+            scores[id] = BETA * keyword_cossim[ind][0] + \
                 (DELTA * popularity[id])
         elif id in ingr_list:
+            print("branch 3")
             scores[id] = BETA * ingredient_jaccard[id][0] + \
                 (DELTA * popularity[id])
         else:
+            print("branch 4: "+str(id))
             scores[id] = DELTA * popularity[id]
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
@@ -144,6 +157,7 @@ def dot_products(query_word_counts, postings, idf):
     for word in query_word_counts:
         if word in postings:
             post = string_to_list(postings[word])
+            print(post)
             for posting in post:
                 w_ij = posting[1] * idf[word]
                 w_iq = query_word_counts[word] * idf[word]
@@ -166,6 +180,8 @@ def cossim(query, postings, idf, index_to_key, n_docs):
     results = []
     query_word_counts = Counter(tokenize(query.lower()))
     numerators = dot_products(query_word_counts, postings, idf)
+    print("NUMERATOR")
+    print(numerators)
     query_norm = 0
     for word in query_word_counts:
         if word in key_to_index:
@@ -176,8 +192,13 @@ def cossim(query, postings, idf, index_to_key, n_docs):
     for doc_id in numerators:
         num = numerators[doc_id]
         doc_norm = doc_norms[doc_id]
-        score = num / (doc_norm * query_norm)
+        denom = doc_norm * query_norm
+        if(denom == 0):
+            denom = 1
+        score = num / denom
         results.append((score, doc_id))
+    print("SCORES")
+    print(results)
     return results
 
 

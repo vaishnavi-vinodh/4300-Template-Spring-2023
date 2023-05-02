@@ -76,6 +76,9 @@
                     }
                 }
             }
+            if( new_name.slice(-1)=='-'){
+                new_name = new_name.slice(0,-1)
+            }
             console.log(new_name);
             const link = 'https://www.archanaskitchen.com/' + new_name;
             return `<a href=${link} style='text-decoration:none; color:black;'> <div class='item'>
