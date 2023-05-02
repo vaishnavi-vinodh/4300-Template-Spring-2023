@@ -46,16 +46,28 @@ TIME_START_INDEX = 9
 TIME_END_INDEX = -2
 
 
-def process_input(query_ingredients, query_keywords, results, time, diet, course):
-    # TODO: account for keywords being blank/needing to be weighted less
+def process_input(query_ingredients, query_keywords, results, time, diet, course, relevant, irrelevant):
     n_docs = len(results)
-    index_to_key, postings_key, popularity = read_csvs()
+    # Get all CSVs
+    index_to_ingr, index_to_key, postings_key, popularity, recipe_to_index = read_csvs()
+
+    # Use rocchio
+    if len(relevant) != 0 or len(irrelevant) != 0:
+        query_ingredients = rocchio(query_ingredients, relevant, irrelevant,
+                                    results, index_to_ingr, recipe_to_index)
+
+    # Compute idf and similarities
     idf = compute_idf(postings_key, n_docs)
     keyword_cossim = cossim(query_keywords, postings_key,
                             idf, index_to_key, n_docs)
-    ingredient_jaccard = jaccard(query_ingredients, results)
+    ingredient_jaccard = jaccard(
+        query_ingredients, results) if query_ingredients != "" else []
+
+    # Use similarities to rank
     sorted = rank(results, keyword_cossim, ingredient_jaccard, popularity)
     ranked = [results[i] for i, _ in sorted]
+
+    # Filter by other fields
     filtered_time = filter_time(ranked, time)
     filtered_diet = filter_diet(filtered_time, diet)
     return filter_course(filtered_diet, course)
@@ -63,13 +75,7 @@ def process_input(query_ingredients, query_keywords, results, time, diet, course
 
 def rank(results, keyword_cossim, ingredient_jaccard, popularity):
     scores = {}
-    # TODO: Check empty ingredients
-    print(keyword_cossim)
-    print(ingredient_jaccard)
-    key_list = [v for _, v in keyword_cossim]
     ingr_list = [v for _, v in ingredient_jaccard]
-    print(key_list)
-    print(ingr_list)
     for id in range(len(results)):
         if id in keyword_cossim and id in ingr_list:
             scores[id] = ALPHA * ingredient_jaccard[id][0] + GAMMA * \
@@ -87,13 +93,17 @@ def rank(results, keyword_cossim, ingredient_jaccard, popularity):
 
 
 def read_csvs():
+    index_to_ingr = clean_dict((pd.read_csv('index_to_ingr.csv', usecols=[
+                               'index', 'word']).to_dict(orient="records")), 'index', 'word')
     index_to_key = clean_dict((pd.read_csv('index_to_key.csv', usecols=[
                                'index', 'word']).to_dict(orient="records")), 'index', 'word')
     postings_key = clean_dict((pd.read_csv('postings_key.csv', usecols=[
         'word', 'postings']).to_dict(orient="records")), 'word', 'postings')
     popularity = {k: int(v['popularity']) for k, v in (pd.read_csv('popularity.csv', usecols=[
         'name', 'popularity']).to_dict(orient="index")).items()}
-    return index_to_key, postings_key, popularity
+    recipe_to_index = {v['name']: k for k, v in (pd.read_csv('popularity.csv', usecols=[
+        'name', 'popularity']).to_dict(orient="index").items())}
+    return index_to_ingr, index_to_key, postings_key, popularity, recipe_to_index
 
 
 def string_to_list(str):
@@ -185,6 +195,54 @@ def jaccard(query, results):
     return result
 
 
+def rocchio(query, relevant, irrelevant, results, index_to_ingr, recipe_to_index, a=.5, b=.25, c=.25):
+
+    q0 = vectorize(tokenize(query), index_to_ingr)
+    relevant = relevant.split(',')
+    irrelevant = irrelevant.split(',')
+    print(relevant)
+    print(recipe_to_index[relevant[0]])
+    print(results[0]['ingredients'])
+    relevant = np.array(list(
+        map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), relevant)))
+    irrelevant = np.array(list(
+        map(lambda x: vectorize(tokenize(results[recipe_to_index[x]]['ingredients']), index_to_ingr), irrelevant)))
+    n_rel = len(relevant)
+    n_irr = len(irrelevant)
+
+    term1 = a * q0
+
+    term2 = 0
+    if n_rel > 0:
+        term2 = (b/n_rel) * np.sum(relevant, axis=0)
+
+    term3 = 0
+    if n_irr > 0:
+        term3 = (c/n_irr) * np.sum(irrelevant, axis=0)
+
+    result = term1 + term2 - term3
+    result[result < 0] = 0
+
+    updated = ""
+
+    for i in range(len(result)):
+        if result[i] != 0:
+            updated += index_to_ingr[i]
+            updated += " "
+
+    return updated
+
+
+def vectorize(tokens, index_to_ingr):
+    vector = np.zeros(len(index_to_ingr))
+    for ind in index_to_ingr:
+        if index_to_ingr[ind] in tokens:
+            vector[ind] = 1
+        else:
+            vector[ind] = 0
+    return vector
+
+
 def filter_time(results, time):
     filtered = []
     for res in results:
@@ -201,7 +259,7 @@ def filter_course(results, course):
         res_course = res['course']
         if course in res_course or course == 'Click dropdown':
             filtered.append(res)
-        if len(filtered) == 3:
+        if len(filtered) == 9:
             break
     return filtered
 
@@ -215,14 +273,14 @@ def filter_diet(results, diet):
     return filtered
 
 
-def sql_search(query_ingredients, query_keywords, time, diet, course):
+def sql_search(query_ingredients, query_keywords, time, diet, course, relevant, irrelevant):
     query_sql = f"""SELECT name, image_url, description, diet, prep_time, ingredients, course, cuisine FROM recipes"""
     keys = ["name", "image_url", "description",
             "diet", "prep_time", "ingredients", "course", "cuisine"]
     data = mysql_engine.query_selector(query_sql)
     data_dict = [dict(zip(keys, i)) for i in data]
     results = process_input(query_ingredients, query_keywords, data_dict, time, diet,
-                            course)
+                            course, relevant, irrelevant)
     return json.dumps(results)
 
 
@@ -238,7 +296,9 @@ def episodes_search():
     time = request.args.get("time")
     diet = request.args.get("diet")
     course = request.args.get("course")
-    return sql_search(query_ingredients, query_keywords, time, diet, course)
+    relevant = request.args.get("relevant")
+    irrelevant = request.args.get("irrelevant")
+    return sql_search(query_ingredients, query_keywords, time, diet, course, relevant, irrelevant)
 
 
 # app.run(debug=True)

@@ -50,13 +50,18 @@
                 </select>
             </div>
             <br>
-            <button id="search"> Search </button>
+            <button id="search" style="padding:10px 30px; font-family: 'Open Sans'; font-size: 15px"> Search </button>
         </div>
         <div id="answer-box">
-
         </div>
+        <button id="update">Update Recipes</button>
+
     </div>
     <script>
+
+        window.onload = function () {
+            document.getElementById("update").hidden = true;
+        }
 
         function answerBoxTemplate(row) {
             const name = row.name.toLowerCase();
@@ -76,33 +81,54 @@
             return `<a href=${link} style='text-decoration:none; color:black;'> <div class='item'>
                 <h3 class='episode-title'>${row.name}</h3>
                 <picture><img src=${row.image_url} width=300 height=250></picture>
-                <p>${row.description}</p>
-            </div> </a>`
+                <p style="font-size=40px;"">${row.description}</p></a>
+                <button id="like" style = "font-size:30px; background-color:#fff7e0; border:0px margin: 2%" onclick="rocchio_relevant('${row.name}')"> 👍🏼 </button>
+                <button id="dislike" style="font-size:30px; background-color:#fff7e0; border:0px; margin: 2%" onclick="rocchio_irrelevant('${row.name}')"> 👎🏼 </button> </div>`
         }
 
-        const button = document.getElementById("search");
+        const relevant = [];
+        const irrelevant = [];
+
+        function rocchio_relevant(name) {
+            relevant.push(name);
+        }
+
+        function rocchio_irrelevant(name) {
+            irrelevant.push(name);
+        }
+
+        const filter_button = document.getElementById("search");
+        const update_button = document.getElementById("update");
 
         function sendFocus(id) {
             document.getElementById(id).focus()
         }
 
-        button.addEventListener('click', (event) => {
+        filter_button.addEventListener('click', (event) => {
             ingredients = document.getElementById('filter-text-val').value;
             keywords = document.getElementById('filter-text-val-1').value;
             time = document.getElementById('time-output').value;
             diet = document.getElementById('diet').value;
             course = document.getElementById('course').value;
-            filterText(ingredients, time, diet, course);
+            document.getElementById("update").hidden = false;
+            document.getElementById("update").style.marginBottom = "500px";
+            document.getElementById("update").style.boxSizing = "content-box";
+            document.getElementById("update").style.padding = "30px 70px";
+            document.getElementById("update").style.fontSize = "20px";
+            document.getElementById("update").style.fontFamily = 'Open Sans';
+            filterText(ingredients, time, diet, course, relevant, irrelevant);
+
         });
 
-        function filterText(ingredients, time, diet, course) {
+        update_button.addEventListener('click', (event) => {
+            filterText(ingredients, time, diet, course, relevant, irrelevant);
+        });
+
+        function filterText(ingredients, time, diet, course, relevant, irrelevant) {
+            console.log(relevant);
+            console.log(irrelevant);
             document.getElementById("answer-box").innerHTML = ""
-            console.log(ingredients)
-            console.log(keywords)
-            console.log(time)
-            console.log(diet)
-            console.log(course)
-            fetch("/episodes?" + new URLSearchParams({ ingredients: ingredients, time: time, diet: diet, course: course, keywords:keywords}).toString())
+            fetch("/episodes?" + new URLSearchParams({ ingredients: ingredients, time: time, diet: diet, course: course, keywords: keywords, relevant: relevant, irrelevant: irrelevant }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
                     let tempDiv = document.createElement("div")
@@ -117,6 +143,6 @@
             document.getElementById('time-output').value = val;
             time_slider_val = val;
         }
-
     </script>
+
 </body>
