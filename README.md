@@ -1,4 +1,4 @@
-# 4300-Flask-Template
+# 4300 - Flavors of India
 
 ## Contents
 
